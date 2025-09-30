@@ -1,14 +1,25 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="yukams.app.background_locator_2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
+    package="yukams.app.background_locator_2">
+    
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
-    <!-- Required for Android 10 (API level 29) and higher. -->
     <application>
-    <service
-        android:name="MyNavigationService"
-        android:foregroundServiceType="location">
-    </service>
+        <service
+            android:name=".IsolateHolderService"
+            android:foregroundServiceType="location"
+            android:exported="false">
+        </service>
+        
+        <receiver 
+            android:name=".BootBroadcastReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
