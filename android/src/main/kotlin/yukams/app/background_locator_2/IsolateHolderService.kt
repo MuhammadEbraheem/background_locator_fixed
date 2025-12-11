@@ -80,19 +80,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
     override fun onCreate() {
         super.onCreate()
-              try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(
-                    notificationId, 
-                    getNotification(),
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-                )
-            } else {
-                startForeground(notificationId, getNotification())
-            }
-        } catch (e: Exception) {
-          
-        }
+              
     }
 
     private fun start() {
@@ -105,7 +93,6 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
         // Starting Service as foreground with a notification prevent service from closing
         val notification = getNotification()
-        try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(
                     notificationId, 
@@ -115,10 +102,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
             } else {
                 startForeground(notificationId, notification)
             }
-        } catch (e: Exception) {
-             Log.e("IsolateHolderService", "Failed to start foreground service in start(): ${e.message}")
-         
-        }
+     
 
         pluggables.forEach {
             context?.let { it1 -> it.onServiceStart(it1) }
@@ -202,13 +186,18 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
     private fun startHolderService(intent: Intent) {
         Log.e("IsolateHolderService", "startHolderService")
-        notificationChannelName =
-            intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_CHANNEL_NAME).toString()
-        notificationTitle =
-            intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_TITLE).toString()
-        notificationMsg = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_MSG).toString()
-        notificationBigMsg =
-            intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_BIG_MSG).toString()
+    notificationChannelName = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_CHANNEL_NAME)
+        ?.takeIf { it.isNotEmpty() } ?: "Flutter Locator Plugin"
+        
+    notificationTitle = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_TITLE)
+        ?.takeIf { it.isNotEmpty() } ?: "Location Tracking"
+        
+    notificationMsg = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_MSG)
+        ?.takeIf { it.isNotEmpty() } ?: "Tracking location"
+        
+    notificationBigMsg = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_BIG_MSG)
+        ?.takeIf { it.isNotEmpty() } ?: "Background location tracking is active"
+    
         val iconNameDefault = "ic_launcher"
         var iconName = intent.getStringExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON)
         if (iconName == null || iconName.isEmpty()) {
