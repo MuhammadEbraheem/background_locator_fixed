@@ -78,11 +78,40 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         return null
     }
 
-    override fun onCreate() {
-        super.onCreate()
-              
+override fun onCreate() {
+    super.onCreate()
+    
+    // Set safe defaults BEFORE creating notification
+    if (notificationChannelName.isEmpty()) {
+        notificationChannelName = "Flutter Locator Plugin"
     }
-
+    if (notificationTitle.isEmpty()) {
+        notificationTitle = "Location Tracking"
+    }
+    if (notificationMsg.isEmpty()) {
+        notificationMsg = "Tracking location"
+    }
+    if (notificationBigMsg.isEmpty()) {
+        notificationBigMsg = "Background location tracking"
+    }
+    if (icon == 0) {
+        icon = applicationInfo.icon
+    }
+    
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                notificationId, 
+                getNotification(),
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        } else {
+            startForeground(notificationId, getNotification())
+        }
+    } catch (e: Exception) {
+        Log.e("IsolateHolderService", "Failed to start foreground: ${e.message}", e)
+    }
+}
     private fun start() {
         (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
             newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG).apply {
